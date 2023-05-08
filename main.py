@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 pygame.init()
 WIDTH, HEIGHT = 1550, 800
 FPS = 60
@@ -37,6 +38,8 @@ class Tank:
 
     
     def update(self):
+        oldX, oldY = self.rect.topleft
+
         if keys[self.keyLEFT]:
             self.rect.x -=self.moveSpeed
             self.direct = 3
@@ -49,6 +52,10 @@ class Tank:
         elif keys[self.keyDOWN]:
             self.rect.y +=self.moveSpeed
             self.direct = 2
+
+        for i in objects:
+            if i != self and self.rect.colliderect(i.rect):
+                self.rect.topleft = oldX, oldY
 
 
         if keys[self.keySHOT] and self.shotTimer == 0:
@@ -71,7 +78,7 @@ class Tank:
         self.hp -=value
         if self.hp <=0:
             objects.remove(self)
-            print(self.color, 'killed')
+            print(self.color, 'died')
 
 
 class Bullet:
@@ -103,11 +110,48 @@ class Bullet:
 
 
 
+class Block:
+    def __init__(self, px, py, size):
+        objects.append(self)
+        self.type = 'block'
+        self.rect = pygame.Rect(px, py, size, size)
+        self.hp = 1
+
+
+    def update(self):
+        pass
+
+
+    def draw(self):
+        
+        pygame.draw.rect(window, 'green', self.rect)
+        pygame.draw.rect(window, 'gray', self.rect, 2)
+
+
+    def damage(self, value):
+        self.hp -= value
+        if self.hp <= 0:
+            objects.remove(self)
+
 bullets = []
 
 objects = []
 Tank('blue', 100, 275, 0, (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_SPACE,))
 Tank('red', 850, 275, 0, (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_KP_ENTER,))
+
+
+for i in range(50):
+    while True:
+        x = randint(0, WIDTH // TILE_X - 1)  * TILE_X
+        y = randint(0, HEIGHT// TILE_Y - 1)  * TILE_Y
+        rect = pygame.Rect(x, y, TILE_X, TILE_Y)
+        fined = False
+        for obj in objects:
+            if rect.colliderect(obj.rect): fined = True
+        if not fined:
+            break
+    Block(x, y, TILE_X)
+
 
 esc = True
 while esc:
