@@ -10,8 +10,27 @@ TILE_Y = 75
 
 fontUI = pygame.font.Font(None, 30)
 
+
+imgBrick = pygame.image.load('tank-assets/tank-assets/PNG/Environment/treeSmall.png')
+imgTanks = [
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/tankBeige.png'),
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/tankBlack.png'),
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/tankBlue.png'),
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/tankGreen.png'),
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/tankRed.png')
+]
+imgBarrels = [
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/barrelBeige.png'),
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/barrelBlack.png'),
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/barrelBlue.png'),
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/barrelGreen.png'),
+    pygame.image.load('tank-assets/tank-assets/PNG/Tanks/barrelRed.png')
+] 
+
+imgSmokes = pygame.image.load('tank-assets/tank-assets/PNG/Smoke/smokeGrey4.png') 
 DIRECTS = [[0, -1], [1, 0], [0, 1], [-1, 0]]
 
+background = pygame.image.load('tank-assets/tank-assets/PNG/Environment/dirt.png')
 
 class UI:
     def __init__(self):
@@ -56,9 +75,15 @@ class Tank:
         self.keyUP = keyList[2]
         self.keyDOWN = keyList[3]
         self.keySHOT = keyList[4]
-
-    
+        self.tankSkin = 0
+        self.imageTank = pygame.transform.rotate(imgTanks[self.tankSkin], -self.direct * 90)
+        self.rect = self.imageTank.get_rect(center = self.rect.center)
+        self.imgBarrel = imgBarrels[0]
     def update(self):
+        self.imageTank = pygame.transform.rotate(imgTanks[self.tankSkin], -self.direct * 90)
+        self.rect = self.imageTank.get_rect(center = self.rect.center)
+        
+
         oldX, oldY = self.rect.topleft
 
         if keys[self.keyLEFT]:
@@ -89,11 +114,12 @@ class Tank:
             self.shotTimer -= 1
 
     def draw(self):
-        pygame.draw.rect(window, self.color, self.rect)
-
+        window.blit(self.imageTank, self.rect)
+        # pygame.draw.rect(window, self.color, self.rect)
+        # window.blit(self.imgBarrel, (self.rect.centerx + DIRECTS[self.direct][0] * -50, self.rect.centery + DIRECTS[self.direct][1] * -50))
         x = self.rect.centerx + DIRECTS[self.direct][0] * 50
         y = self.rect.centery + DIRECTS[self.direct][1] * 50
-        pygame.draw.line(window, 'white', self.rect.center, (x, y), 16)
+        pygame.draw.line(window, 'gray', self.rect.center, (x, y), 16)
 
     def damage(self, value):
         self.hp -=value
@@ -145,8 +171,8 @@ class Block:
 
     def draw(self):
         
-        pygame.draw.rect(window, 'green', self.rect)
-        pygame.draw.rect(window, 'gray', self.rect, 2)
+
+        window.blit(imgBrick, self.rect)
 
 
     def damage(self, value):
@@ -163,7 +189,7 @@ Tank('red', 850, 275, 0, (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_D
 ui = UI()
 
 
-for i in range(50):
+for i in range(30):
     while True:
         x = randint(0, WIDTH // TILE_X - 1)  * TILE_X
         y = randint(1, HEIGHT// TILE_Y - 1)  * TILE_Y
@@ -173,7 +199,7 @@ for i in range(50):
             if rect.colliderect(obj.rect): fined = True
         if not fined:
             break
-    Block(x, y, TILE_X - 8)
+    Block(x, y, TILE_X + 7)
 
 
 esc = True
